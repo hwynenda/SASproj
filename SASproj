@@ -425,21 +425,26 @@ proc univariate data=Project.fnclog noprint;
 run;
 * Conclusion: data is not normally distributed;
 
+
+* Create RFT; 
 ods listing close;
 options orientation=portrait nodate nonumber;
 ods rtf file='combine_graphandtable.rtf' startpage=no nogtitle nogfootnote;
-title "test";
-PROC PRINT DATA = NormaliltyTest LABEL NOOBS;
+title "Is the log transformed fire size normally distributed for each of the top 3 causes?";
+ods select histogram qqplot GoodnessOfFit;
+proc univariate data=Project.fnclog;
+
+  class STAT_CAUSE_DESCR;
+
+  var logtransform;
+
+  histogram logtransform / nrows = 3 normal ;
+
+  inset mean std="s" / format = 6.2;
+
+  qqplot logtransform ;
+
 run;
-goptions reset=goptions;
-ods select histogram;
-proc univariate data=Project.fnclog noprint;
- 	class STAT_CAUSE_DESCR;
- 	var logtransform;
- 	histogram logtransform / normal ;
-	inset n mean std / position=ne;
-run;
-quit;
 ods rtf close;
 
 /************************************************************************
